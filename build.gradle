@@ -1,0 +1,52 @@
+buildscript {
+    ext {
+        springBootVersion = '1.2.2.RELEASE'
+        javaVersion = 1.8
+        javaLanguageLevel = 1.8
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+
+jar {
+    baseName = 'wikiparser'
+    version = '0.0.1-SNAPSHOT'
+}
+sourceCompatibility = javaVersion
+targetCompatibility = javaLanguageLevel
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+
+    compile('org.springframework.boot:spring-boot-starter')
+
+
+    compile("org.springframework:spring-web")
+    compile("com.fasterxml.jackson.core:jackson-databind")
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
+
+idea {
+    project {
+        jdkName = javaVersion
+        languageLevel = javaLanguageLevel
+        ipr.withXml { it.asNode().appendNode('vcs', 'Git') }
+    }
+}
