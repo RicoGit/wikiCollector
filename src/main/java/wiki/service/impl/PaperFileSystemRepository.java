@@ -16,6 +16,7 @@ public class PaperFileSystemRepository implements PersistentRepository<Paper> {
     @Override
     public void write(Paper paper) {
         // write to file system
+        System.out.printf("%s is saved", paper.getId());
     }
 
     @Override

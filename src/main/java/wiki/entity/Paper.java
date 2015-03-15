@@ -12,12 +12,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Paper {
 
-    @JsonProperty(value="pageids")
+    @JsonProperty("pageid")
     int id;
-    @JsonProperty(value="fullurl")
+    @JsonProperty("fullurl")
     String url;
-    @JsonProperty(value="extract")
+    @JsonProperty("extract")
     String content;
+    @JsonProperty("title")
+    String title;
+    // todo нужна полная иерархия
 
     public int getId() {
         return id;
@@ -39,4 +42,8 @@ public class Paper {
         this.content = content;
     }
 
+    @Override
+    public String toString() {
+        return String.format("Paper {id: %s, title: %s}", id, title);
+    }
 }
