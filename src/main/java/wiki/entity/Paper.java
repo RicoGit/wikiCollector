@@ -20,7 +20,8 @@ public class Paper {
     String content;
     @JsonProperty("title")
     String title;
-    // todo нужна полная иерархия
+
+    Category parent;
 
     public int getId() {
         return id;
@@ -40,6 +41,22 @@ public class Paper {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Category getParent() {
+        return parent;
+    }
+
+    public void setParent(Category parent) {
+        this.parent = parent;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     @Override

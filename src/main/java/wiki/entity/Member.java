@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 
 
-public class Member {
+public class Member implements Comparable<Member> {
 
     @JsonProperty("pageid")
     private int id;
@@ -27,6 +27,10 @@ public class Member {
         return type;
     }
 
+    @Override
+    public int compareTo(Member member) {
+        return this.getTitle().compareTo(member.getTitle());
+    }
 }
 
 

@@ -2,6 +2,7 @@ package wiki.service;
 
 import org.springframework.stereotype.Service;
 import wiki.config.ApplicationConfig;
+import wiki.entity.Category;
 import wiki.entity.Member;
 import wiki.entity.Paper;
 
@@ -26,33 +27,32 @@ public class CrawlingService {
     private ApplicationConfig applicationConfig;
 
 
-    public List<Paper> processCategory(String category) {
+    public void processCategory(final Category category) {
 
         AtomicInteger pagesCount = new AtomicInteger();
-
         int parallelism = applicationConfig.getNumberOfThread();
-
         ForkJoinPool forkJoinPool = new ForkJoinPool(parallelism);
 
-        List<Member> pages = wikiApi.getPagesOfCategoryByName(category);
+        List<Member> pages = wikiApi.getAllPagesOfCategoryByName(category.getTitle());
 
-        if (pages.size() < 400) {
+//        if (pages.size() < 400) {
+//
+//            pagesCount.addAndGet(pages.size());
+//
+//            List<Member> subCategories = wikiApi.getSubCategoriesOfCategoryByName(category);
+//
+//            subCategories.stream()
+//                    .forEach(subCategory -> {
+//                        List<Member> pagesOfSubCategory = wikiApi.getAllPagesOfCategoryById(subCategory.getId());
+//                        // todo сохранить страницы из всех сублистов, создать для них таски
+//                    });
+//             // todo если 400 статей не собралось спускаемся на уровень ниже
+//        }
 
-            pagesCount.addAndGet(pages.size());
+        String outPutFolder= applicationConfig.getResultFolderPath();
+        PaperMiningTask paperMiningTask = new PaperMiningTask(category,pages, parallelism, outPutFolder, 0, pages.size());
 
-            List<Member> subCategories = wikiApi.getSubCategoriesOfCategoryByName(category);
-
-            subCategories.stream()
-                    .forEach(subCategory -> {
-                        List<Member> pagesOfSubCategory = wikiApi.getPagesOfCategoryById(subCategory.getId());
-                        // todo сохранить страницы из всех сублистов, создать для низ таски
-                    });
-             // todo если 400 статей не собралось спускаемся на уровень ниже
-        }
-
-        PaperMiningTask paperMiningTask = new PaperMiningTask(pages, parallelism, 0, pages.size());
-
-        return forkJoinPool.invoke(paperMiningTask);
+        forkJoinPool.invoke(paperMiningTask);
     }
 
     private List<Paper> processSubCategory(int categoryId, AtomicInteger pagesCount) {
@@ -61,14 +61,12 @@ public class CrawlingService {
 
         ForkJoinPool forkJoinPool = new ForkJoinPool(parallelism);
 
-        List<Member> pages = wikiApi.getPagesOfCategoryById(categoryId);
+        List<Member> pages = wikiApi.getAllPagesOfCategoryById(categoryId);
 
         //todo
 
         return null;
     }
-
-
 
 
 }

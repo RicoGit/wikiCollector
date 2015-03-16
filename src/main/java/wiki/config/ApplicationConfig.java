@@ -2,6 +2,7 @@ package wiki.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import wiki.entity.Category;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -28,17 +29,13 @@ public class ApplicationConfig {
     @Value("${resultFolderPath}")
     private String resultFolderPath;
 
-    private List<String> categoryList;
+    private List<Category> categoryList;
 
-    public List<String> getCategories() {
+
+    public List<Category> getCategories() {
 
         if (categoryList == null) {
-
-            categoryList = new ArrayList<>(categories.length);
-            for(String category : categories) {
-                byte[] stringAsBytes = category.getBytes(Charset.forName("ISO8859-1"));
-                categoryList.add(new String(stringAsBytes, Charset.forName("UTF8")));
-            }
+            categoryList = asListOfCategories(categories);
         }
 
         return categoryList;
@@ -54,5 +51,23 @@ public class ApplicationConfig {
 
     public String getResultFolderPath() {
         return resultFolderPath;
+    }
+
+    private List<Category> asListOfCategories(String[] categories) {
+
+        int length = categories.length;
+
+        List<Category> categoryList = new ArrayList<>(length);
+
+        for(int i=0; i < length; i++){
+            categoryList.add(new Category(i, convertToUtf8(categories[i].trim())));
+        }
+
+        return categoryList;
+    }
+
+    private String convertToUtf8(String Iso8859String) {
+        byte[] stringAsBytes = Iso8859String.getBytes(Charset.forName("ISO8859-1"));
+        return new String(stringAsBytes, Charset.forName("UTF8"));
     }
 }

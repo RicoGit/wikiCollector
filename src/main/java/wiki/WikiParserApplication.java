@@ -5,10 +5,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
 import wiki.config.ApplicationConfig;
-import wiki.entity.Paper;
+import wiki.entity.Category;
 import wiki.service.CrawlingService;
-import wiki.service.PersistentRepository;
-import wiki.service.WikiApi;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -18,26 +16,24 @@ import java.util.List;
 public class WikiParserApplication implements CommandLineRunner {
 
     @Resource
-    private WikiApi wikiApi;
-    @Resource
-    private PersistentRepository<Paper> persistentRepository;
-    @Resource
     private CrawlingService crawlingService;
-
     @Resource
     private ApplicationConfig applicationConfig;
 
     @Override
     public void run(String... args) throws Exception {
 
-        System.out.println("application start");
+        long start = System.currentTimeMillis();
+        System.out.println("Application start");
 
-        List<String> categories = applicationConfig.getCategories();
+        List<Category> categoryList = applicationConfig.getCategories();
 
-        categories
+        categoryList
                 .stream()
                 .limit(1) // todo remove
                 .forEach(crawlingService::processCategory);
+
+        System.out.println("Application end, time spend " + (System.currentTimeMillis() - start));
     }
 
 
