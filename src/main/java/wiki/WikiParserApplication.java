@@ -18,22 +18,22 @@ public class WikiParserApplication implements CommandLineRunner {
     @Resource
     private CrawlingService crawlingService;
     @Resource
-    private ApplicationConfig applicationConfig;
+    private ApplicationConfig config;
 
     @Override
     public void run(String... args) throws Exception {
 
         long start = System.currentTimeMillis();
-        System.out.println("Application start");
+        List<Category> categoryList = config.getCategories();
 
-        List<Category> categoryList = applicationConfig.getCategories();
+        System.out.printf("\nApplication start\nCategories - %s\nParallelism - %d\n", categoryList, config.getNumberOfThread());
 
         categoryList
                 .stream()
                 .limit(1) // todo remove
                 .forEach(crawlingService::processCategory);
 
-        System.out.println("Application end, time spend " + (System.currentTimeMillis() - start));
+        System.out.println("\nApplication end, time spend\n" + (System.currentTimeMillis() - start));
     }
 
 

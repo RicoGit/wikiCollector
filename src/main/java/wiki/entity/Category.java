@@ -9,21 +9,26 @@ package wiki.entity;
 
 public class Category {
 
+    private Integer cmpageid;
     private int code;
     private String title;
-    private Category parent; //?
+    private Category parent;
 
     public Category(int code, String title) {
         this.code = code;
         this.title = title;
     }
 
-    public Category(int code, String title, Category parent) {
+    public Category(int cmpageid, int code, String title, Category parent) {
+        this.cmpageid = cmpageid;
         this.code = code;
         this.title = title;
         this.parent = parent;
     }
 
+    public Integer getCmpageid() {
+        return cmpageid;
+    }
 
     public int getCode() {
         return code;
@@ -47,5 +52,10 @@ public class Category {
 
     public void setParent(Category parent) {
         this.parent = parent;
+    }
+
+    @Override
+    public String toString() {
+        return "{" + title + "}";
     }
 }
