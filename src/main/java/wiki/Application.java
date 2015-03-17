@@ -23,6 +23,7 @@ public class Application implements CommandLineRunner {
     @Resource
     private ApplicationConfig config;
 
+    /* Define Beans */
 
     @Bean(name = "simpleRestTemplate")
     public RestTemplate getSimpleRestTemplate() {
@@ -41,6 +42,8 @@ public class Application implements CommandLineRunner {
     }
 
 
+    /* Application entry point */
+
     @Override
     public void run(String... args) throws Exception {
 
@@ -54,12 +57,9 @@ public class Application implements CommandLineRunner {
                 config.getMaxRequestDelay()
         );
 
-        categoryList
-                .stream()
-                .limit(1) // todo remove
-                .forEach(crawlingService::processCategory);
+        categoryList.forEach(crawlingService::processCategory);
 
-        System.out.println("\nApplication end, time spend\n" + (System.currentTimeMillis() - start));
+        System.out.println("\nApplication end, time spend " + (System.currentTimeMillis() - start));
     }
 
 

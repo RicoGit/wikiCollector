@@ -18,19 +18,16 @@ public final class ConstantOptions {
 
     private final Category category;
     private final List<Member> pages;
-    private final String outPutFolder;
     private final Function<Integer, Optional<Paper>> getPaperFn;
 
     public ConstantOptions(
             Category category,
             List<Member> pages,
-            String outPutFolder,
             Function<Integer, Optional<Paper>> getPaperFn
     ) {
 
         this.category = category;
         this.pages = pages;
-        this.outPutFolder = outPutFolder;
         this.getPaperFn = getPaperFn;
     }
 
@@ -40,10 +37,6 @@ public final class ConstantOptions {
 
     public List<Member> getPages() {
         return pages;
-    }
-
-    public String getOutPutFolder() {
-        return outPutFolder;
     }
 
     public Function<Integer, Optional<Paper>> getPaperFn() {

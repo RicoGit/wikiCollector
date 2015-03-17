@@ -23,6 +23,9 @@ public class ApplicationConfig {
     @Value("${numberOfThreads}")
     private int numberOfThread;
 
+    @Value("${pagesLimit}")
+    private int pagesLimit;
+
     @Value("${maxRequestsDelayInMs}")
     private int maxRequestDelay;
 
@@ -60,7 +63,7 @@ public class ApplicationConfig {
         List<Category> categoryList = new ArrayList<>(length);
 
         for(int i=0; i < length; i++){
-            categoryList.add(new Category(i, convertToUtf8(categories[i].trim())));
+            categoryList.add(new Category(i, convertToUtf8(categories[i].trim()), getResultFolderPath()));
         }
 
         return categoryList;

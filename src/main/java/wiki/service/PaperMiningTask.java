@@ -1,7 +1,6 @@
 package wiki.service;
 
 import org.springframework.util.Assert;
-import wiki.entity.Category;
 import wiki.entity.Member;
 import wiki.entity.Paper;
 
@@ -97,7 +96,7 @@ public class PaperMiningTask extends RecursiveAction {
 
         try {
 
-            Path path = Paths.get(composePath(index));
+            Path path = Paths.get(options.getCategory().getFileFullPath(index));
             String dataToWrite = String.format("%s\n\n\n%s\n", paper.getUrl(), paper.getContent());
             Files.createDirectories(path.getParent());
             Files.write(path, dataToWrite.getBytes(), WRITE, CREATE);
@@ -105,26 +104,6 @@ public class PaperMiningTask extends RecursiveAction {
         } catch (IOException e) {
             System.out.println(e);
         }
-    }
-
-    private String composePath(int index) {
-
-        String fileName = "";
-        String subCatFolder = "";
-
-        Category category = options.getCategory();
-
-        do {
-             fileName =     String.format("%02d_%s", category.getCode(), fileName);
-             subCatFolder = String.format("%02d_%s", category.getCode(), subCatFolder);
-             category = category.getParent();
-
-         } while (category != null);
-
-        subCatFolder =  String.format("%s%s/", subCatFolder, options.getCategory().getTitle());
-        fileName =      String.format("%s%03d.txt", fileName, index);
-
-        return options.getOutPutFolder() + subCatFolder + fileName;
     }
 
 }

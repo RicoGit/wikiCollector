@@ -1,7 +1,8 @@
 package wiki.entity;
 
+import static java.lang.String.format;
+
 /**
- * Project: Shamrock Web Portal.
  * User: Constantine Solovev
  * Date: 16.03.15
  * Time: 11:17
@@ -14,9 +15,13 @@ public class Category {
     private String title;
     private Category parent;
 
-    public Category(int code, String title) {
+    private String fullPath;
+    private String childrenPrefix = "";
+
+    public Category(int code, String title, String outputFolder) {
         this.code = code;
         this.title = title;
+        init(outputFolder);
     }
 
     public Category(int cmpageid, int code, String title, Category parent) {
@@ -24,7 +29,32 @@ public class Category {
         this.code = code;
         this.title = title;
         this.parent = parent;
+        init(parent.getFolderFullPath());
     }
+
+
+    public String getFolderFullPath() {
+        return fullPath;
+    }
+
+    public String getFileFullPath(int index) {
+        return this.getFolderFullPath() + format("%s%03d.txt", this.childrenPrefix, index);
+    }
+
+
+    private void init(String outputFolder) {
+
+        Category category = this;
+
+        do {
+            this.childrenPrefix = format("%02d_%s", category.getCode(), this.childrenPrefix);
+            category = category.getParent();
+        } while (category != null);
+
+        String folderName = format("%s%s/", this.childrenPrefix, this.getTitle());
+        this.fullPath  = outputFolder + folderName;
+    }
+
 
     public Integer getCmpageid() {
         return cmpageid;
