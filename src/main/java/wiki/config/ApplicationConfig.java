@@ -56,6 +56,10 @@ public class ApplicationConfig {
         return resultFolderPath;
     }
 
+    public int getPagesLimit() {
+        return pagesLimit;
+    }
+
     private List<Category> asListOfCategories(String[] categories) {
 
         int length = categories.length;

@@ -35,7 +35,7 @@ public class CrawlingService {
     @PostConstruct
     void postConstruct() {
         parallelism = config.getNumberOfThread();
-        pagesLimit = config.getNumberOfThread();
+        pagesLimit = config.getPagesLimit();
         forkJoinPool = new ForkJoinPool(parallelism);
     }
 
