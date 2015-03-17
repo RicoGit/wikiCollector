@@ -23,7 +23,7 @@ public class ApplicationConfig {
     @Value("${numberOfThreads}")
     private int numberOfThread;
 
-    @Value("${maxRequestsDelayInSecond}")
+    @Value("${maxRequestsDelayInMs}")
     private int maxRequestDelay;
 
     @Value("${resultFolderPath}")

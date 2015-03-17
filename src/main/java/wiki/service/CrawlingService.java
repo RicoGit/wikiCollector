@@ -19,7 +19,7 @@ import static java.util.Collections.sort;
  */
 
 
-@Service
+@Service   //todo refactor very ugly
 public class CrawlingService {
 
     @Resource
@@ -38,20 +38,19 @@ public class CrawlingService {
     }
 
     public void processCategory(final Category category) {
-        processCategoryRecursive(category, new AtomicInteger(), applicationConfig.getResultFolderPath());
+
+        AtomicInteger atomicPageCounter = new AtomicInteger();
+
+        processRootCategory(category, atomicPageCounter, applicationConfig.getResultFolderPath());
+
+        System.out.printf("%d pages downloaded\n", atomicPageCounter.get());
     }
 
-    private void processCategoryRecursive(final Category category, AtomicInteger pagesCount, String folder ) {
+    private void processRootCategory(final Category category, AtomicInteger pagesCount, String folder){
 
-        System.out.println(parallelism + " " + category + " " + pagesCount.get());
+        System.out.println(" Root category:" + category);
 
-        List<Member> pages;
-
-        if (category.getCmpageid() != null) {
-             pages = wikiApi.getAllPagesOfCategoryById(category.getCmpageid());
-        } else {
-            pages = wikiApi.getAllPagesOfCategoryByName(category.getTitle());
-        }
+        List<Member>pages = wikiApi.getAllPagesOfCategory(category);
         sort(pages);
 
         ConstantOptions options = new ConstantOptions(category, pages, folder, wikiApi::getPaper);
@@ -59,52 +58,62 @@ public class CrawlingService {
 
         forkJoinPool.invoke(paperMiningTask);
 
-        // if pages in current category not enough, go deeper
         if(pagesCount.addAndGet(pages.size()) < 400) {
 
-            List<Member> subCategories = wikiApi.getSubCategoriesOfCategoryByName(category.getTitle());
+            List<Member> subCategories = wikiApi.getAllSubCategoriesOfCategory(category);
             sort(subCategories);
 
             for (int index = 0; index < subCategories.size(); index++) {
-                Member member= subCategories.get(index);                                                              // todo
-                processCategoryRecursive(new Category(member.getId(), index, member.getTitle(), category), pagesCount, folder + category.getCode() + "_" + category.getTitle() + "/");
+
+                Member member= subCategories.get(index);
+                processPagesOfCategory(
+                        new Category(member.getId(), index, member.getTitle(), category),
+                        pagesCount,
+                        folder + String.format("%02d_%s/", category.getCode(), category.getTitle()) // todo add common method
+                );
             }
 
-            subCategories.stream()
-                    .forEach(subCategory -> {
+            if(pagesCount.get() < 400) {
+                for (int index = 0; index < subCategories.size(); index++) {
 
-//                        List<Member> pagesOfSubCategory = wikiApi.getAllPagesOfCategoryById(subCategory.getId());
-//
-//                        sort(pagesOfSubCategory);
-//
-//                        ConstantOptions options = new ConstantOptions(
-//                                subCategory,
-//                                pagesOfSubCategory,
-//                                resultFolderPath + subCategory.getTitle(),
-//                                wikiApi::getPaper);
-//                        PaperMiningTask paperMiningTask = new PaperMiningTask(options, parallelism, 0, pages.size());
-//
-//                        forkJoinPool.invoke(paperMiningTask);
+                    Member member= subCategories.get(index);
+                    processSubCategoriesOfCategory(
+                            new Category(member.getId(), index, member.getTitle(), category),
+                            pagesCount,
+                            folder + String.format("%02d_%s/", category.getCode(), category.getTitle())  // todo add common method
+                    );
+                }
+                System.out.println("go deeper");
+            } else {
+                System.out.printf("Finish with '%s' category\n", category.getTitle());
+            }
 
-                        // todo сохранить страницы из всех сублистов, создать для них таски
-                    });
-            // todo если 400 статей не собралось спускаемся на уровень ниже
         }
 
     }
 
-//    private List<Paper> processSubCategory(int categoryId, AtomicInteger pagesCount) {
-//
-//        int parallelism = applicationConfig.getNumberOfThread();
-//
-//        ForkJoinPool forkJoinPool = new ForkJoinPool(parallelism);
-//
-//        List<Member> pages = wikiApi.getAllPagesOfCategoryById(categoryId);
-//
-//        //todo
-//
-//        return null;
-//    }
+    private void processPagesOfCategory(Category category, AtomicInteger pagesCount, String folder) {
 
+        System.out.println("process pages of category " + category + " " + pagesCount.get());
+
+        List<Member> pages = wikiApi.getAllPagesOfCategory(category);
+        sort(pages);
+
+        ConstantOptions options = new ConstantOptions(category, pages, folder, wikiApi::getPaper);
+        PaperMiningTask paperMiningTask = new PaperMiningTask(options, parallelism, 0, pages.size());
+
+        forkJoinPool.invoke(paperMiningTask);
+
+        pagesCount.addAndGet(pages.size());
+    }
+
+    private void processSubCategoriesOfCategory(Category category, AtomicInteger pagesCount, String folder) {
+
+        System.out.println("process subcategories of category " + category);
+
+        List<Member> pages = wikiApi.getAllSubCategoriesOfCategory(category);
+        sort(pages);
+
+    }
 
 }

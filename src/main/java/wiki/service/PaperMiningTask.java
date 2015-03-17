@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.RecursiveAction;
 
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -85,8 +86,8 @@ public class PaperMiningTask extends RecursiveAction {
         range(start, end).forEach(index -> {
 
             Member member = pages.get(index);
-            Paper paper = options.getPaperFn().apply(member.getId());
-            writePaperToFile(paper, index);
+            Optional<Paper> optionalPaper = options.getPaperFn().apply(member.getId());
+            optionalPaper.ifPresent(paper -> writePaperToFile(paper, index));
 
         });
 
@@ -108,24 +109,22 @@ public class PaperMiningTask extends RecursiveAction {
 
     private String composePath(int index) {
 
-        StringBuilder path = new StringBuilder();
         String fileName = "";
-
-        path.append(options.getOutPutFolder());
+        String subCatFolder = "";
 
         Category category = options.getCategory();
 
         do {
-
-             fileName += category.getCode() + "_";
-             path.append(String.format("%02d_%s/", category.getCode(), category.getTitle()));
+             fileName =     String.format("%02d_%s", category.getCode(), fileName);
+             subCatFolder = String.format("%02d_%s", category.getCode(), subCatFolder);
              category = category.getParent();
 
          } while (category != null);
 
-        path.append(String.format("%s%04d.txt", fileName, index));
+        subCatFolder =  String.format("%s%s/", subCatFolder, options.getCategory().getTitle());
+        fileName =      String.format("%s%03d.txt", fileName, index);
 
-        return path.toString();
+        return options.getOutPutFolder() + subCatFolder + fileName;
     }
 
 }
