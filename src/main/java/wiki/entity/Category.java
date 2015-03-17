@@ -1,5 +1,6 @@
 package wiki.entity;
 
+import static java.io.File.separator;
 import static java.lang.String.format;
 
 /**
@@ -38,7 +39,7 @@ public class Category {
     }
 
     public String getFileFullPath(int index) {
-        return this.getFolderFullPath() + format("%s%03d.txt", this.childrenPrefix, index);
+        return this.getFolderFullPath() + separator + format("%s%03d.txt", this.childrenPrefix, index);
     }
 
 
@@ -51,8 +52,8 @@ public class Category {
             category = category.getParent();
         } while (category != null);
 
-        String folderName = format("%s%s/", this.childrenPrefix, this.getTitle());
-        this.fullPath  = outputFolder + folderName;
+        String folderName =  this.childrenPrefix + this.getTitle();
+        this.fullPath  = outputFolder + separator + folderName;
     }
 
 

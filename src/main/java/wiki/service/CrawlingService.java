@@ -24,7 +24,6 @@ public class CrawlingService {
 
     @Resource
     private WikiApi wikiApi;
-
     @Resource
     private ApplicationConfig config;
 
