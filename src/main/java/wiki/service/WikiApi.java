@@ -47,9 +47,9 @@ public class WikiApi {
         PaperResponse paperResponse = null;
         try {
             paperResponse = restTemplateWithLimitedTimeout.getForObject(getPaperById(pageIds), PaperResponse.class);
-            System.out.printf("'%8s' - success\n", pageIds);
+            System.out.print("|"); // success
         } catch (ResourceAccessException e) {
-            System.out.printf("'%8s' - connection timeout\n", pageIds);
+            System.out.printf("-"); // fail
         }
         return Optional.ofNullable(paperResponse != null ? paperResponse.asPaper(pageIds) : null);
     }

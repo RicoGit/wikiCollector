@@ -54,8 +54,6 @@ public class CrawlingService {
 
     private void processCategoryRecursive(Category category, AtomicInteger pagesCount){
 
-        System.out.printf("Process category %s, pages %d\n", category, pagesCount.get());
-
         if(pagesCount.get() < pagesLimit) {
 
             // get all subCategories
@@ -93,17 +91,18 @@ public class CrawlingService {
 
     private void processPagesOfCategory(Category category, AtomicInteger pagesCount) {
 
-        System.out.println("process pages of category " + category + " " + pagesCount.get());
-
         List<Member> pages = wikiApi.getAllPagesOfCategory(category);
         sort(pages);
 
         ConstantOptions options = new ConstantOptions(category, pages, wikiApi::getPaper);
-        PaperMiningTask paperMiningTask = new PaperMiningTask(options, parallelism, 0, pages.size());
+        PaperMiningTask paperMiningTask = new PaperMiningTask(null, options, parallelism, 0, pages.size());
 
         forkJoinPool.invoke(paperMiningTask);
 
         pagesCount.addAndGet(pages.size());
+
+        System.out.println(" -> " + category + " total: " + pagesCount.get());
+
     }
 
 }

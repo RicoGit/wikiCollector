@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.RecursiveAction;
+import java.util.concurrent.CountedCompleter;
 
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.WRITE;
@@ -22,7 +22,7 @@ import static java.util.stream.IntStream.range;
  */
 
 
-public class PaperMiningTask extends RecursiveAction {
+public class PaperMiningTask extends CountedCompleter<Void> {
 
     private ConstantOptions options;
 
@@ -30,7 +30,8 @@ public class PaperMiningTask extends RecursiveAction {
     private final int end;
     private int availableThreads;
 
-    public PaperMiningTask( ConstantOptions options, int availableThreads, int start, int end ) {
+    public PaperMiningTask( PaperMiningTask parent, ConstantOptions options, int availableThreads, int start, int end ) {
+        super(parent);
 
         Assert.notNull(options, "ConstantOptions required");
         Assert.isTrue(start <= end, "Invalid list bounds");
@@ -44,40 +45,26 @@ public class PaperMiningTask extends RecursiveAction {
 
 
     @Override
-    protected void compute() {
+    public void compute() {
 
-        if (availableThreads == 0) {
+        if (availableThreads < 2) {
 
             getAndSave(options.getPages(), start, end);
-
-        } else if (availableThreads == 1) {
-
-            int mid = ( start + end ) / 2;
-
-            PaperMiningTask task = new PaperMiningTask(options, 0, start, mid);
-            task.fork();
-
-            getAndSave(options.getPages(), mid, end);
-
-            task.join();
 
         } else {
 
             int mid = ( start + end ) / 2;
             availableThreads -= 2;
 
-            PaperMiningTask task1 = new PaperMiningTask(options, availableThreads / 2, start, mid);
-            PaperMiningTask task2 = new PaperMiningTask(options, availableThreads / 2, mid, end);
+            setPendingCount(2);
+            PaperMiningTask task1 = new PaperMiningTask(this, options, availableThreads / 2, start, mid);
+            PaperMiningTask task2 = new PaperMiningTask(this, options, availableThreads / 2, mid, end);
 
             task1.fork();
             task2.fork();
-
-            task1.join();
-            task2.join();
-
-            System.out.printf("fork (%d, %d) - (%d, %d) thread left - %s\n", start, mid, mid, end, availableThreads);
-
         }
+
+        tryComplete();
     }
 
     private void getAndSave(List<Member> pages, int start, int end) {
